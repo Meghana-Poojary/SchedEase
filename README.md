@@ -1,4 +1,6 @@
 # Welcome to SchedEase
+### This website has been hosted on AWS amplify
+https://main.dgtj5cte139c0.amplifyapp.com
 
 Follow these steps:
 
