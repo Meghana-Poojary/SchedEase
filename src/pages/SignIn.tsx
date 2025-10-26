@@ -8,18 +8,23 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
 import { GraduationCap } from "lucide-react";
+import { configureAmplifyForRole } from "@/aws/amplifyClient.js";
+import { signIn } from "aws-amplify/auth";
 
 const SignIn = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    toast.success("Welcome back, Student!");
-    navigate("/dashboard");
+    try {
+      configureAmplifyForRole("student");
+      await signIn({ username: formData.email, password: formData.password });
+      toast.success("Welcome back, Student!");
+      navigate("/dashboard");
+    } catch (error) {
+      toast.error(error.message || "Sign-in failed");
+    }
   };
 
   return (

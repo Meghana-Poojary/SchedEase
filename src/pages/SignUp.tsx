@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,9 +8,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
+import { configureAmplifyForRole } from "@/aws/amplifyClient.js";
+import { signUp } from "aws-amplify/auth";
 
 const SignUp = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const defaultRole = searchParams.get("role") || "student";
   
   const [role, setRole] = useState(defaultRole);
@@ -24,32 +27,46 @@ const SignUp = () => {
     rollNo: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    toast.success("Account created successfully!");
-    // Handle signup logic here
+    try {
+      configureAmplifyForRole(role);
+
+      await signUp({
+        username: formData.email,
+        password: formData.password,
+        options: {
+          userAttributes: {
+            email: formData.email,
+            name: formData.name,
+            phone_number:formData.phone.startsWith("+")? formData.phone: `+91${formData.phone}`,
+          },
+        },
+      });
+
+      toast.success("Sign up successful! Please check your email for verification.");
+      navigate(role === "admin" ? "/admin/signin" : "/signin");
+    } catch (error) {
+      toast.error(error.message || "Sign up failed!");
+    }
   };
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
       <div className="flex-1 flex items-center justify-center py-12 px-4">
-        <div className="absolute inset-0 gradient-hero opacity-5"></div>
-        
         <Card className="w-full max-w-md relative z-10 shadow-hover rounded-2xl">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-3xl font-bold">Create Your Account</CardTitle>
             <CardDescription>Join SchedEase to manage and attend college events</CardDescription>
           </CardHeader>
-          
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Fields same as your code */}
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
                 <Input
                   id="name"
-                  placeholder="John Doe"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
@@ -61,15 +78,16 @@ const SignUp = () => {
                 <Label htmlFor="role">Role</Label>
                 <Select value={role} onValueChange={setRole}>
                   <SelectTrigger className="rounded-xl">
-                    <SelectValue />
+                    <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="admin">Admin</SelectItem>
                     <SelectItem value="student">Student</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
+              {/* Additional student fields */}
               {role === "student" && (
                 <>
                   <div className="grid grid-cols-2 gap-4">
@@ -77,22 +95,18 @@ const SignUp = () => {
                       <Label htmlFor="class">Class</Label>
                       <Input
                         id="class"
-                        placeholder="CSE-A"
                         value={formData.class}
                         onChange={(e) => setFormData({ ...formData, class: e.target.value })}
                         required
-                        className="rounded-xl"
                       />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="year">Year</Label>
                       <Select 
-                        value={formData.year} 
+                        value={formData.year}
                         onValueChange={(value) => setFormData({ ...formData, year: value })}
                       >
-                        <SelectTrigger className="rounded-xl">
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="1">First Year</SelectItem>
                           <SelectItem value="2">Second Year</SelectItem>
@@ -107,11 +121,9 @@ const SignUp = () => {
                     <Label htmlFor="rollNo">Roll Number</Label>
                     <Input
                       id="rollNo"
-                      placeholder="2024001"
                       value={formData.rollNo}
                       onChange={(e) => setFormData({ ...formData, rollNo: e.target.value })}
                       required
-                      className="rounded-xl"
                     />
                   </div>
                 </>
@@ -122,24 +134,20 @@ const SignUp = () => {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="john@college.edu"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
-                  className="rounded-xl"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
+                <Label htmlFor="phone">Phone</Label>
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="+1 (555) 000-0000"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   required
-                  className="rounded-xl"
                 />
               </div>
 
@@ -151,25 +159,16 @@ const SignUp = () => {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
-                  className="rounded-xl"
                 />
               </div>
 
               <Button type="submit" className="w-full rounded-full gradient-hero">
                 Sign Up
               </Button>
-
-              <p className="text-center text-sm text-muted-foreground">
-                Already have an account?{" "}
-                <Link to="/signin" className="text-primary font-medium hover:underline">
-                  Sign In
-                </Link>
-              </p>
             </form>
           </CardContent>
         </Card>
       </div>
-
       <Footer />
     </div>
   );
