@@ -45,7 +45,7 @@ const SignUp = () => {
       });
 
       toast.success("Sign up successful! Please check your email for verification.");
-      navigate(role === "admin" ? "/admin/signin" : "/signin");
+      navigate(`/verify-email?email=${encodeURIComponent(formData.email)}`);
     } catch (error) {
       toast.error(error.message || "Sign up failed!");
     }
