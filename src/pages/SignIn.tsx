@@ -20,6 +20,11 @@ const SignIn = () => {
     try {
       configureAmplifyForRole("student");
       await signIn({ username: formData.email, password: formData.password });
+
+      // ✅ Store logged-in student's email locally
+      localStorage.setItem("studentId", formData.email);
+      console.log("Stored studentId:", localStorage.getItem("studentId"));
+      
       toast.success("Welcome back, Student!");
       navigate("/dashboard");
     } catch (error) {

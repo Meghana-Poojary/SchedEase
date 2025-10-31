@@ -39,10 +39,28 @@ const SignUp = () => {
           userAttributes: {
             email: formData.email,
             name: formData.name,
-            phone_number:formData.phone.startsWith("+")? formData.phone: `+91${formData.phone}`,
+            phone_number: formData.phone.startsWith("+") ? formData.phone : `+91${formData.phone}`,
           },
         },
       });
+
+      await fetch(
+        "https://7rxbi2vf8k.execute-api.us-east-1.amazonaws.com/devstudent/addStudent",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fullName: formData.name,
+            role: "Student",
+            className: formData.class,
+            year: formData.year,
+            rollNo: formData.rollNo,
+            email: formData.email,
+            phone: formData.phone,
+            password: formData.password,
+          }),
+        }
+      );
 
       toast.success("Sign up successful! Please check your email for verification.");
       navigate(role === "admin" ? "/admin/signin" : "/signin");
