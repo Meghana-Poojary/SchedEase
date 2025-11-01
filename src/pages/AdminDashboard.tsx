@@ -246,7 +246,6 @@ const AdminDashboard = () => {
                       <TableHead>Event Name</TableHead>
                       <TableHead>Date</TableHead>
                       <TableHead>Venue</TableHead>
-                      <TableHead>Participants</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -261,12 +260,7 @@ const AdminDashboard = () => {
                             {event.location}
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Users className="h-4 w-4 text-primary" />
-                            {event.participants || "-"}
-                          </div>
-                        </TableCell>
+                        
                         <TableCell>
                           <Button variant="outline" size="sm" className="rounded-full" onClick={() => handleEditClick(event)}>
                             Edit

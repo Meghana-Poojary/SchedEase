@@ -207,8 +207,10 @@ const UserDashboard = () => {
                     <div key={index} className="relative">
                       <EventCard
                         title={event.eventName}
-                        description={event.eventDescription}
-                        date={event.eventDate}
+                        description={event.eventDescription || event.description || "No description available"}
+                        date={event.eventDate ||
+    event.date ||
+    (event.time ? `${event.date} ${event.time}` : "Date TBD")}
                         venue={event.venue}
                         image={resolveImage(event)}
                       />
@@ -240,13 +242,14 @@ const UserDashboard = () => {
                 {registeredEvents.length > 0 ? (
                   registeredEvents.map((event, index) => (
                     <EventCard
-                      key={index}
-                      title={event.eventName}
-                      description={event.eventDescription}
-                      date={event.eventDate}
-                      venue={event.venue}
-                      image={resolveImage(event)}
-                    />
+                        title={event.eventName}
+                        description={event.eventDescription || event.description || "No description available"}
+                        date={event.eventDate ||
+    event.date ||
+    (event.time ? `${event.date} ${event.time}` : "Date TBD")}
+                        venue={event.venue}
+                        image={resolveImage(event)}
+                      />
                   ))
                 ) : (
                   <p>No registered events yet.</p>
